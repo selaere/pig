@@ -35,7 +35,8 @@ IRCParse ← { 𝕊 in:
     wds ← (×≠¨)⊸/ in ⊔˜ (⊢ -˜ ¬ ∧ +`) cln∨ spc∧ ¬∨`cln    # strips colons too!
     wds ∾⟜⟨""⟩⍟(¯1 ⊑ cln)↩    # if the colon is at the end, add an empty argument
     src ← ""
-    { 𝕊: src ↩ 1 ↓ ⊑wds ⋄ wds ↓˜↩ 1} ⍟ ⊢ (':'=⊑in)
+    {𝕊: src ↩ 1 ↓ ⊑wds
+        wds ↓˜↩ 1} ⍟ ⊢ (':'=⊑in)
     ⟨src, ⊑ wds, 1 ↓ wds⟩    # src‿name‿args
 }
 ! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ IRCParse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
@@ -67,10 +68,10 @@ Message ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← "pig " ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ 4 + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand name #⎊({
-            #𝕨 Say "*vomits on ground*"
-            #Logln "!!! "∾𝕩
-        #}⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DoCommand name ⎊({
+            𝕨 Say "*vomits on ground*"
+            Logln "!!! "∾𝕩
+        }⟜•CurrentError) name
     ; @
 }
 
@@ -84,7 +85,6 @@ Saylns ← {
 }
 
 Say ← {Send "PRIVMSG "∾𝕨.chan∾" :"∾𝕩}
-
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 susBQN¨ "rand←•rand"‿"math←•math"‿"Fmt←•Fmt"‿"Type←•Type"‿"UnixTime←•UnixTime"‿"Glyph←•Glyph"
