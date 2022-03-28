@@ -26,7 +26,7 @@ SendUTF8 ← {
     •term.OutRaw 𝕩∾cr‿lf
     •term.Flush @
 }
-Send ← {SendUTF8 ToUTF8 𝕩}
+Send ← SendUTF8∘ToUTF8
 
 Parse ← { 𝕊 in: 
     in ↓˜↩ - ⊑⊐⟜0 ⌽ (cr⊸= ∨ lf⊸=) in    # remove line endings
