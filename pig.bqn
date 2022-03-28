@@ -74,7 +74,7 @@ Message ← {
     ; @
 }
 
-# send lines of `bytes` bytes, without splitting utf-8 sequence boundaries
+# send lines of around `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
     bytes ← 420    # maximum bytes to send
     utf ← CpToUTF8∘-⟜@¨ 𝕩 
