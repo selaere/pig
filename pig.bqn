@@ -67,23 +67,20 @@ Message ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← "pig " ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ 4 + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
-            𝕨 Say "*vomits on ground*"
-            Logln "!!! "∾𝕩
-        }⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DoCommand name #⎊({
+            #𝕨 Say "*vomits on ground*"
+            #Logln "!!! "∾𝕩
+        #}⟜•CurrentError) name
     ; @
 }
 
 # send lines of `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
+    bytes ← 420    # maximum bytes to send
+    utf ← CpToUTF8∘-⟜@¨ 𝕩 
+    lines ← utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
     start ← ToUTF8 "PRIVMSG "∾𝕨.chan∾" :"
-    bytes ← 400    # maximum bytes to send. might be adjusted to something better later
-    utf ← CpToUTF8∘-⟜@¨ 𝕩
-    lfs ← lf = 𝕩
-    lines ← utf ⊔˜ lfs (¬∘⊣⊸∧ - ⊣) ⊑¨ {
-        a‿b 𝕊 l‿x: {l ∨ bytes<b+x? ⟨a+1, l×x⟩; ⟨a, b+x⟩}
-    }` lfs (⊣⋈·≠⊢)¨ utf    # this might be possible with a 2d array, maybe
-    SendUTF8∘(start ∾ ∾)¨ lines
+    SendUTF8∘(10⊸≠⊸/ start ∾ ∾)¨ lines
 }
 
 Say ← {Send "PRIVMSG "∾𝕨.chan∾" :"∾𝕩}
