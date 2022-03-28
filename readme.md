@@ -3,6 +3,8 @@
 suboptimal accursed irc bot written (mostly) in bqn. it runs occasionally on 
 [apionet](https://apionet.gh0.pw/).
 
+contains BQN code execution and not much more
+
 this is like my first moderately large thing in any array language don't kill me please
 
 this repository contains:
