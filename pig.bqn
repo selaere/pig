@@ -28,7 +28,7 @@ SendUTF8 ← {
 }
 Send ← SendUTF8∘ToUTF8
 
-Parse ← { 𝕊 in: 
+IRCParse ← { 𝕊 in: 
     in ↓˜↩ - ⊑⊐⟜0 ⌽ (cr⊸= ∨ lf⊸=) in    # remove line endings
     spc‿cln ← in⊸=¨ " :"
     cln ↩ ¬ ⟨1⟩⊒ 0 » spc ∧ 0«cln    # keep only when followed by spaces
@@ -38,16 +38,16 @@ Parse ← { 𝕊 in:
     { 𝕊: src ↩ 1 ↓ ⊑wds ⋄ wds ↓˜↩ 1} ⍟ ⊢ (':'=⊑in)
     ⟨src, ⊑ wds, 1 ↓ wds⟩    # src‿name‿args
 }
-! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ Parse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
-! ""‿"pig"‿("PRIVMSG"‿"#a"‿"among"‿"us") ≡ Parse "pig PRIVMSG  #a    among us"
-! "irc.example.com"‿"CAP"‿("*"‿"LIST"‿"") ≡ Parse ":irc.example.com CAP * LIST :"∾(10/⋈cr)∾lf
+! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ IRCParse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
+! ""‿"pig"‿("PRIVMSG"‿"#a"‿"among"‿"us") ≡ IRCParse "pig PRIVMSG  #a    among us"
+! "irc.example.com"‿"CAP"‿("*"‿"LIST"‿"") ≡ IRCParse ":irc.example.com CAP * LIST :"∾(10/⋈cr)∾lf
 ! "AutoBotRobot"‿"PRIVMSG"‿("#b"‿"<9DrakeBot> :tada: Congratulations to") ≡ {
-    Parse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
+    IRCParse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
 }
 
-SplitCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
+ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
-Choose ← {
+Message ← {
     𝕊 ·‿"STARTPLZ"‿·:
         # this is not actually an irc command. it is sent by the shell file to tell this file to 
         # send the login commands and shit
@@ -66,14 +66,15 @@ Choose ← {
     ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← "pig " ⍷ " " ∾˜ msg?
-        name‿args ← SplitCommand msg ↓˜ 4 + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} ChooseCommand⎊({
+        name‿args ← ParseCommand msg ↓˜ 4 + ⊑/pigs
+        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
         }⟜•CurrentError) name
     ; @
 }
 
+# send lines of `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
     start ← ToUTF8 "PRIVMSG "∾𝕨.chan∾" :"
     bytes ← 400    # maximum bytes to send. might be adjusted to something better later
@@ -87,13 +88,15 @@ Saylns ← {
 
 Say ← {Send "PRIVMSG "∾𝕨.chan∾" :"∾𝕩}
 
-keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
-keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
-# 🐖 will be used when no escape is found
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 susBQN¨ "rand←•rand"‿"math←•math"‿"Fmt←•Fmt"‿"Type←•Type"‿"UnixTime←•UnixTime"‿"Glyph←•Glyph"
 
+keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
+keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
+# 🐖 will be used when no escape is found
+
+# resolves BQN escapes as in https://mlochbaum.github.io/BQN/keymap.html
 Unescape ← {
     code ← 𝕩 (⊣ ↓ -⊸↓)˜ (⊑∘⊐⟜0 ⌊ ⊑∘⊐⟜0∘⌽) '`' = 𝕩   # removes as many ticks it can
     bsls ← ¬⊸∨` '\' ≠ code    # in \\ only the first backslash should be escaped
@@ -101,7 +104,8 @@ Unescape ← {
 }
 
 Pick ← •rand.Range∘≠ ⊑ ⊢
-ChooseCommand ← {
+
+DoCommand ← {
     cx 𝕊 "say":
         cx Say cx.args
     ;
@@ -109,8 +113,8 @@ ChooseCommand ← {
         cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) Unescape cx.args
     ;
     cx 𝕊 "perform":
-        cx ChooseCommand "unescape"
-        cx ChooseCommand "do"
+        cx DoCommand "unescape"
+        cx DoCommand "do"
     ;
     cx 𝕊 "unescape":
         cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
@@ -124,8 +128,8 @@ ChooseCommand ← {
         Send "PART "∾cx.chan
     ;
     cx 𝕊 "please":
-        name‿args ← SplitCommand cx.args
-        {src⇐ cx.src, chan⇐ cx.chan, args⇐ args} ChooseCommand name
+        name‿args ← ParseCommand cx.args
+        {src⇐ cx.src, chan⇐ cx.chan, args⇐ args} DoCommand name
         cx Say ∾ Pick¨ ⟨
             ⟨"my pleasure"
              "forget it"
@@ -149,7 +153,7 @@ Main ← {𝕊:
 
     { 𝕊:
         Log "... "
-        (Choose∘Parse @˙ Logln) •GetLine @
+        (Message∘IRCParse @˙ Logln) •GetLine @
     } •_while_ 1 @
 }
 
