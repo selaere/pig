@@ -1,7 +1,7 @@
 ## pig
 
-suboptimal accursed irc bot written (mostly) in bqn. it runs occasionally on 
-[apionet](https://apionet.gh0.pw/).
+suboptimal accursed irc bot written (mostly) in [bqn](https://mlochbaum.github.io/BQN/index.html). 
+it runs occasionally on [apionet](https://apionet.gh0.pw/).
 
 it can do BQN code execution and not much more
 
