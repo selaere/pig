@@ -87,7 +87,8 @@ Saylns ← {
 Say ← {Send "PRIVMSG "∾𝕨.chan∾" :"∾𝕩}
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
-susBQN¨ "rand←•rand"‿"math←•math"‿"Fmt←•Fmt"‿"Type←•Type"‿"UnixTime←•UnixTime"‿"Glyph←•Glyph"
+# provide some builtins
+SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Type"‿"UnixTime"‿"Glyph"
 
 keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
 keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
@@ -97,7 +98,7 @@ keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽
 Unescape ← {
     code ← 𝕩 (⊣ ↓ -⊸↓)˜ (⊑∘⊐⟜0 ⌊ ⊑∘⊐⟜0∘⌽) '`' = 𝕩   # removes as many ticks it can
     bsls ← ¬⊸∨` '\' ≠ code    # in \\ only the first backslash should be escaped
-    (⊢ /˜ bsls ∧ '•'⊸≠) (keyto ⊏˜ keyfm ⊐⊢)⌾((»¬bsls)⊸/) code
+    bsls / (keyto ⊏˜ keyfm ⊐ ⊢)⌾((»¬bsls)⊸/) code
 }
 
 Pick ← •rand.Range∘≠ ⊑ ⊢
@@ -107,7 +108,9 @@ DoCommand ← {
         cx Say cx.args
     ;
     cx 𝕊 "do":
-        cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) Unescape cx.args
+        code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape cx.args
+        ! ¬⊑ '•' ∊ code    # this should NOT happen
+        cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) code
     ;
     cx 𝕊 "perform":
         cx DoCommand "unescape"
