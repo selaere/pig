@@ -145,6 +145,19 @@ DoCommand ← {
             " :D"‿" :>"‿" :]" ∾ 2/" c:"‿" :)"‿""
         ⟩
     ;
+    cx 𝕊 "aysay":
+        ltrs ← ∾ "Aa"⊸+¨↕26
+        csnts ← "bcdfghjklmnpqrstvwxz"
+        # u ← cx.args ⊔˜ (⊣ + ⊢ ≠ 0=2|⊣)` cx.args ∊ ltrs
+        u ← cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
+        cx Saylns ∾ {
+            0 = ≠𝕩? "";
+            ¬⊑ 𝕩 ∊ ltrs? 𝕩;
+            low ← +⟜(32×'Z'⊸≥)¨ 𝕩
+            t ← ⊑⊐⟜0 (0∾"qu"⍷low)∨ 1⌾⊑⍟('y'=⊑low) low ∊ csnts
+            (t↓low) ∾ (t↑low) ∾ ("w"/˜t=0) ∾ "ay"
+        }¨ u
+    ;
     cx 𝕊 cmd:
         cx Say "oink"
 }
