@@ -148,7 +148,6 @@ DoCommand ← {
     cx 𝕊 "aysay":
         ltrs ← ∾ "Aa"⊸+¨↕26
         csnts ← "bcdfghjklmnpqrstvwxz"
-        # u ← cx.args ⊔˜ (⊣ + ⊢ ≠ 0=2|⊣)` cx.args ∊ ltrs
         u ← cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
         cx Saylns ∾ {
             0 = ≠𝕩? "";
