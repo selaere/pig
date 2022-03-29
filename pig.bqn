@@ -80,11 +80,12 @@ Saylns ← {
     bytes ← 420    # maximum bytes to send
     utf ← CpToUTF8∘-⟜@¨ 𝕩 
     lines ← utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
-    start ← ToUTF8 "PRIVMSG "∾𝕨.chan∾" :"
-    SendUTF8∘(10⊸≠⊸/ start ∾ ∾)¨ lines
+    SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ∾)¨ lines
 }
 
-Say ← {Send "PRIVMSG "∾𝕨.chan∾" :"∾𝕩}
+ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!' ⊸ ↑ 𝕩.src; 𝕩.chan}
+
+Say ← Send  ⊢ ∾˜ · ResponsePrefix ⊣
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 # provide some builtins
