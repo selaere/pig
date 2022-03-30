@@ -68,7 +68,7 @@ Message ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← "pig " ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ 4 + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand name ⎊({
+        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
         }⟜•CurrentError) name
@@ -85,7 +85,7 @@ Saylns ← {
 
 ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!' ⊸ ↑ 𝕩.src; 𝕩.chan}
 
-Say ← Send  ⊢ ∾˜ · ResponsePrefix ⊣
+Say ← Send  ⊢ ∾˜ ResponsePrefix∘⊣
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 # provide some builtins
@@ -127,6 +127,9 @@ DoCommand ← {
     cx 𝕊 "leave":
         cx Say "omw"
         Send "PART "∾cx.chan
+    ;
+    cx 𝕊 "emete":
+        "emetion triggered" ! 0
     ;
     cx 𝕊 "please":
         name‿args ← ParseCommand cx.args
