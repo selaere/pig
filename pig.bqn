@@ -52,20 +52,16 @@ name ← "pig"
 
 ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
-Login ← { 𝕊:    # this always uses the same nickname and realname
-    Send "NICK "∾name
-    Send "USER "∾name∾" 0 * "∾name
-}
-
 OnMessage ← {
     𝕊 ·‿"STARTPLZ"‿·:
         # this is not actually an irc command. it is sent by the shell file to tell this file to 
         # send the login commands and shit
-        Login name
+        Send "NICK "∾name
+        Send "USER "∾name∾" 0 * "∾name
     ;
     𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
         name ↩ Pick alternatives
-        Login name
+        Send "NICK "∾name
     ;
     𝕊 ·‿"001"‿·:    # RPL_WELCOME
         Send "MODE "∾name∾" +x"
@@ -77,7 +73,7 @@ OnMessage ← {
     ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
-        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
+        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ¯1⊑/pigs
         {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
