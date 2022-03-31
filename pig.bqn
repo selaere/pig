@@ -52,7 +52,7 @@ name ← "pig"
 
 ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
-Login ← {    # this always uses the same nickname and realname
+Login ← { 𝕊:    # this always uses the same nickname and realname
     Send "NICK "∾name
     Send "USER "∾name∾" 0 * "∾name
 }
