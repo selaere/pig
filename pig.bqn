@@ -46,28 +46,38 @@ IRCParse ← { 𝕊 in:
     IRCParse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
 }
 
+alternatives ← "piglet"‿"hog"‿"swine"‿"porker"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"
+
+name ← "pig"
+
 ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
-Message ← {
+Login ← {    # this always uses the same nickname and realname
+    Send "NICK "∾name
+    Send "USER "∾name∾" 0 * "∾name
+}
+
+OnMessage ← {
     𝕊 ·‿"STARTPLZ"‿·:
         # this is not actually an irc command. it is sent by the shell file to tell this file to 
         # send the login commands and shit
-        Send "NICK pig"
-        Send "USER pig 0 * pig"
+        Login name
     ;
-    𝕊 ·‿"001"‿·:
-        Send "MODE pig +x"
+    𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
+        name ↩ Pick alternatives
+        Login name
+    ;
+    𝕊 ·‿"001"‿·:    # RPL_WELCOME
+        Send "MODE "∾name∾" +x"
         Send "JOIN #b"
         Send "PRIVMSG #b 🐖"
-        # Send "WHOIS pig"
     ;
     𝕊 ·‿"PING"‿args:
         Send {0=≠args? "PONG" ; "PONG :"∾¯1⊑args}
-        #Send "PRIVMSG #aa oink"
     ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
-    ∨´ pigs ← "pig " ⍷ " " ∾˜ msg?
-        name‿args ← ParseCommand msg ↓˜ 4 + ⊑/pigs
+    ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
+        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
         {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
@@ -89,7 +99,7 @@ Say ← Send  ⊢ ∾˜ ResponsePrefix∘⊣
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 # provide some builtins
-SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Repr"‿"Type"‿"Glyph"‿"Decompose"‿"MakeRand"‿"bits"
+SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Repr"‿"Type"‿"Glyph"‿"Decompose"‿"MakeRand"‿"bit"
 
 keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
 keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
@@ -169,7 +179,7 @@ Main ← {𝕊:
 
     { 𝕊:
         Log "... "
-        (Message∘IRCParse @˙ Logln) •GetLine @
+        (OnMessage∘IRCParse @˙ Logln) •GetLine @
     } •_while_ 1 @
 }
 
