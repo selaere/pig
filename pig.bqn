@@ -89,7 +89,7 @@ Say ← Send  ⊢ ∾˜ ResponsePrefix∘⊣
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 # provide some builtins
-SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Type"‿"UnixTime"‿"Glyph"
+SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Repr"‿"Type"‿"Glyph"‿"Decompose"‿"MakeRand"‿"bits"
 
 keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
 keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
