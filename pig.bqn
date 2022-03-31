@@ -2,6 +2,8 @@
 
 cr‿lf ← @+13‿10
 
+fmtItalics ← @+29
+
 Log ← •term.ErrRaw
 Logln ← Log ∾⟜lf
 
@@ -16,7 +18,7 @@ cpToUTF8 ← {
                   ⟨240 + 18 Shr 𝕩, Cnt 12 Shr 𝕩, Cnt 6 Shr 𝕩, Cnt 𝕩⟩
     }
 }
-ToUTF8 ← ∾ ∘ (CpToUTF8¨ ∘ -⟜@)
+ToUTF8 ← ∾ · CpToUTF8¨ -⟜@
 ! 226‿138‿145‿240‿157‿149‿168‿47‿240‿157‿149‿169 ≡ ToUTF8 "⊑𝕨/𝕩"    # [*"⊑𝕨/𝕩".encode('utf-8')]
 
 # https://github.com/dzaima/CBQN/blob/master/docs/system.md#term
@@ -36,7 +38,7 @@ IRCParse ← { 𝕊 in:
     wds ∾⟜⟨""⟩⍟(¯1 ⊑ cln)↩    # if the colon is at the end, add an empty argument
     src ← ""
     {𝕊: src ↩ 1 ↓ ⊑wds
-        wds ↓˜↩ 1} ⍟ ⊢ (':'=⊑in)
+        wds ↓˜↩ 1}⍟⊢ ':' = ⊑in
     ⟨src, ⊑ wds, 1 ↓ wds⟩    # src‿name‿args
 }
 ! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ IRCParse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
@@ -46,7 +48,7 @@ IRCParse ← { 𝕊 in:
     IRCParse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
 }
 
-alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"‿"farrow"
+alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"‿"farrow"‿"boneen"
 
 name ← "pig"
 
@@ -57,7 +59,7 @@ OnMessage ← {
         # this is not actually an irc command. it is sent by the shell file to tell this file to 
         # send the login commands and shit
         Send "NICK "∾name
-        Send "USER "∾name∾" 0 * "∾name
+        Send "USER "∾name∾" 0 * :"∾fmtItalics∾"Sus domesticus"
     ;
     𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
         name ↩ Pick alternatives
@@ -73,7 +75,7 @@ OnMessage ← {
     ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
-        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ¯1⊑/pigs
+        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
         {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
@@ -157,14 +159,13 @@ DoCommand ← {
     cx 𝕊 "aysay":
         ltrs ← ∾ "Aa"⊸+¨↕26
         csnts ← "bcdfghjklmnpqrstvwxz"
-        u ← cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
         cx Saylns ∾ {
             0 = ≠𝕩? "";
             ¬⊑ 𝕩 ∊ ltrs? 𝕩;
-            low ← +⟜(32×'Z'⊸≥)¨ 𝕩
-            t ← ⊑⊐⟜0 (0∾"qu"⍷low)∨ 1⌾⊑⍟('y'=⊑low) low ∊ csnts
-            (t↓low) ∾ (t↑low) ∾ ("w"/˜t=0) ∾ "ay"
-        }¨ u
+            wd ← +⟜(32×'Z'⊸≥)¨ 𝕩
+            t ← ⊑⊐⟜0 (0∾"qu"⍷wd)∨ 1⌾⊑⍟('y'=⊑wd) wd ∊ csnts
+            (t↓wd) ∾ (t↑wd) ∾ ("w"/˜t=0) ∾ "ay"
+        }¨ cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
     ;
     cx 𝕊 cmd:
         cx Say "oink"
@@ -172,7 +173,6 @@ DoCommand ← {
 
 Main ← {𝕊:
     Logln "starting..."
-
     { 𝕊:
         Log "... "
         (OnMessage∘IRCParse @˙ Logln) •GetLine @
