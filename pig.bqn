@@ -46,7 +46,7 @@ IRCParse ← { 𝕊 in:
     IRCParse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
 }
 
-alternatives ← "piglet"‿"hog"‿"swine"‿"porker"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"
+alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"
 
 name ← "pig"
 
