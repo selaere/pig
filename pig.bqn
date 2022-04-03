@@ -76,10 +76,10 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
-            𝕨 Say "*vomits on ground*"
-            Logln "!!! "∾𝕩
-        }⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DoCommand name#⎊({
+            #𝕨 Say "*vomits on ground*"
+            #Logln "!!! "∾𝕩
+        #}⟜•CurrentError) name
     ; @
 }
 
@@ -166,6 +166,17 @@ DoCommand ← {
             t ← ⊑⊐⟜0 (0∾"qu"⍷wd)∨ 1⌾⊑⍟('y'=⊑wd) wd ∊ csnts
             (t↓wd) ∾ (t↑wd) ∾ ("w"/˜t=0) ∾ "ay"
         }¨ cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
+    ;
+    cx 𝕊 "bee":
+        Number ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
+        Repeat ← Number⊸/
+        choices ← ∾ ⟨
+            3/⟨{𝕊: "bee"∾(Repeat "e")∾(Pick ""‿""‿"s")∾(Repeat "!")}⟩
+            3/⟨{𝕊: "bzz"∾(Repeat "z")∾(Pick ""‿"t")∾(Pick ""‿"!")}⟩
+              ⟨"c:"⟩
+              ⟨"apio"⟩
+        ⟩
+        cx Saylns {𝕊: 𝕩 ∾ ∾⟜' '⍟(7≥•rand.Range 10) (Pick choices){𝔽} 1 }⍟Number ⟨⟩
     ;
     cx 𝕊 cmd:
         cx Say "oink"
