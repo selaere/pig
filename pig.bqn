@@ -76,10 +76,10 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand name#⎊({
-            #𝕨 Say "*vomits on ground*"
-            #Logln "!!! "∾𝕩
-        #}⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
+            𝕨 Say "*vomits on ground*"
+            Logln "!!! "∾𝕩
+        }⟜•CurrentError) name
     ; @
 }
 
