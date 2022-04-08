@@ -86,7 +86,7 @@ OnMessage ← {
 # send lines of around `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
     bytes ← 420    # maximum bytes to send
-    utf ← CpToUTF8∘-⟜@¨ 𝕩 
+    utf ← CpToUTF8∘-⟜@¨ +⟜(9216×' '⊸>∧lf⊸≠) 𝕩
     lines ← utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
     SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ∾)¨ lines
 }
