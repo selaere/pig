@@ -11,5 +11,3 @@ this repository contains:
 - `pig.sh`, a shell file to make the connection and run the thing (check it before running)
 - `pig.bqn`, that handles the requests and sends responses and stuff
 - this
-
-too many things are hardcoded now. i should change this
