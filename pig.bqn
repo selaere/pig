@@ -111,6 +111,7 @@ Unescape ← {
 }
 
 Pick ← •rand.Range∘≠ ⊑ ⊢
+Picks ← {𝕩 ⊏˜ 𝕨 •rand.Range ≠𝕩}
 
 DoCommand ← {
     cx 𝕊 "say":
@@ -128,7 +129,7 @@ DoCommand ← {
     cx 𝕊 "unescape":
         cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
     ;
-    cx 𝕊 "join": ¬ ∨´ " ," ∊ cx.args? '#' = ⊑ cx.args?
+    cx 𝕊 "join": ¬ ∨´ "," ∊ cx.args? '#' = ⊑ cx.args?
         cx Say "omw"
         Send "JOIN "∾cx.args
     ;
@@ -168,15 +169,15 @@ DoCommand ← {
         }¨ cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
     ;
     cx 𝕊 "bee":
-        Number ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
-        Repeat ← Number⊸/
-        choices ← ∾ ⟨
-            3/⟨{𝕊: "bee"∾(Repeat "e")∾(Pick ""‿""‿"s")∾(Repeat "!")}⟩
-            3/⟨{𝕊: "bzz"∾(Repeat "z")∾(Pick ""‿"t")∾(Pick ""‿"!")}⟩
-              ⟨"c:"⟩
-              ⟨"apio"⟩
+        Num ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
+        Repeat ← Num⊸/
+        bzzt ← ∾ ⟨
+            3/⟨{𝕊: "bee"∾(Num⊸/ "e")∾(Pick ""‿""‿"s")∾(Num⊸/ "!")∾Pick""‿" "}⟩
+            3/⟨{𝕊: "bzz"∾(Num⊸/ "z")∾(Pick ""‿"t")∾(Pick ""‿"!")∾Pick""‿" "}⟩
+              ⟨{𝕊: "c:"∾Pick""‿" "}⟩
+              ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
-        cx Saylns {𝕊: 𝕩 ∾ ∾⟜' '⍟(7≥•rand.Range 10) (Pick choices){𝔽} 1 }⍟Number ⟨⟩
+        cx Saylns ∾ {𝕏@}¨ (Num @) Picks bzzt
     ;
     cx 𝕊 cmd:
         cx Say "oink"
