@@ -24,7 +24,7 @@ ToUTF8 ← ∾ · CpToUTF8¨ -⟜@
 # https://github.com/dzaima/CBQN/blob/master/docs/system.md#term
 SendUTF8 ← {
     "sending more than 512 bytes" ! 510 ≥ ≠𝕩
-    Logln ">>> "∾𝕩
+    Logln (Time@)∾">>> "∾𝕩
     •term.OutRaw 𝕩∾cr‿lf
     •term.Flush @
 }
@@ -54,6 +54,8 @@ name ← "pig"
 
 ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
+lastreq ← 0
+
 OnMessage ← {
     𝕊 ·‿"STARTPLZ"‿·:
         # this is not actually an irc command. it is sent by the shell file to tell this file to 
@@ -62,8 +64,7 @@ OnMessage ← {
         Send "USER "∾name∾" 0 * :"∾fmtItalics∾"Sus domesticus"
     ;
     𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
-        name ↩ Pick alternatives
-        Send "NICK "∾name
+        Send "NICK " ∾ name ↩ Pick alternatives
     ;
     𝕊 ·‿"001"‿·:    # RPL_WELCOME
         Send "MODE "∾name∾" +x"
@@ -76,7 +77,7 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DoCommand⎊({
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
         }⟜•CurrentError) name
@@ -113,6 +114,14 @@ Unescape ← {
 Pick ← •rand.Range∘≠ ⊑ ⊢
 Picks ← {𝕩 ⊏˜ 𝕨 •rand.Range ≠𝕩}
 
+DelayedDoCommand ← {
+    cx 𝕊 ·: 1 > (•MonoTime@) - lastreq?
+        cx Say "wait!!!"
+    ;
+        𝕨 DoCommand 𝕩
+        lastreq ↩ •MonoTime@
+}
+
 DoCommand ← {
     cx 𝕊 "say":
         cx Say cx.args
@@ -120,11 +129,15 @@ DoCommand ← {
     cx 𝕊 "do":
         code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape cx.args
         ! ¬⊑ '•' ∊ code    # this should NOT happen
-        cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) code
+        { ⊑"#" ∊ 𝕩? 
+            cx Say "nah"
+            "emetion triggered" ! 0
+        ;
+            cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
+        } code
     ;
     cx 𝕊 "perform":
-        cx DoCommand "unescape"
-        cx DoCommand "do"
+        cx⊸DoCommand¨ "unescape"‿"do"
     ;
     cx 𝕊 "unescape":
         cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
@@ -148,7 +161,7 @@ DoCommand ← {
              "forget it"
              "not at all"
              "yw"
-             "np"⟩∾ 2/⟨"you're welcome"
+             "np"⟩ ∾ 2/⟨"you're welcome"
                        "no problem"
                        "it's nothing"
                        "it's a pleasure"
@@ -172,8 +185,8 @@ DoCommand ← {
         Num ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
         Repeat ← Num⊸/
         bzzt ← ∾ ⟨
-            3/⟨{𝕊: "bee"∾(Num⊸/ "e")∾(Pick ""‿""‿"s")∾(Num⊸/ "!")∾Pick""‿" "}⟩
-            3/⟨{𝕊: "bzz"∾(Num⊸/ "z")∾(Pick ""‿"t")∾(Pick ""‿"!")∾Pick""‿" "}⟩
+            3/⟨{𝕊: "bee"∾(Num⊸/ "e")∾(Pick ""‿""‿"s")∾(Num⊸/ "!")∾Pick""‿" "‿" "}⟩
+            3/⟨{𝕊: "bzz"∾(Num⊸/ "z")∾(Pick ""‿"t")∾(Pick ""‿"!")∾Pick""‿" "‿" "}⟩
               ⟨{𝕊: "c:"∾Pick""‿" "}⟩
               ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
@@ -182,12 +195,14 @@ DoCommand ← {
     cx 𝕊 cmd:
         cx Say "oink"
 }
+Time ← {𝕊: ¯1↓1⊑•SH "date"‿"-u"‿"+%H:%M:%S"}
 
 Main ← {𝕊:
     Logln "starting..."
     { 𝕊:
-        Log "... "
-        (OnMessage∘IRCParse @˙ Logln) •GetLine @
+        { Logln (Time@)∾"... "∾(@+8203)⊸≠⊸/ 𝕩
+          OnMessage IRCParse 𝕩
+        } •GetLine @
     } •_while_ 1 @
 }
 
