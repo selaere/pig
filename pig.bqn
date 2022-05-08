@@ -77,10 +77,10 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
-            𝕨 Say "*vomits on ground*"
-            Logln "!!! "∾𝕩
-        }⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name #⎊({
+            #𝕨 Say "*vomits on ground*"
+            #Logln "!!! "∾𝕩
+        #}⟜•CurrentError) name
     ; @
 }
 
@@ -88,8 +88,9 @@ OnMessage ← {
 Saylns ← {
     bytes ← 420    # maximum bytes to send
     utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸>∧lf⊸≠) 𝕩
-    lines ← utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
-    SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ∾)¨ lines
+    lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
+    lines (∾⟜⟨ToUTF8"etc"⟩ 10⊸↑)⍟(10<≠lines)↩
+    SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ⊢)¨ lines
 }
 
 ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!' ⊸ ↑ 𝕩.src; 𝕩.chan}
