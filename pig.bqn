@@ -184,13 +184,12 @@ DoCommand ← {
     ;
     cx 𝕊 "bee":
         Num ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
-        bzzt ← ∾ ⟨
+        cx Saylns ∾ {𝕏@}¨ (Num @) Picks ∾ ⟨
             3/⟨{𝕊: "bee"∾(Num⊸/ "e")∾(Pick ""‿""‿"s")∾(Num⊸/ "!")∾Pick""‿" "‿" "}⟩
             3/⟨{𝕊: "bzz"∾(Num⊸/ "z")∾(Pick ""‿"t")∾(Pick ""‿"!")∾Pick""‿" "‿" "}⟩
               ⟨{𝕊: "c:"∾Pick""‿" "}⟩
               ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
-        cx Saylns ∾ {𝕏@}¨ (Num @) Picks bzzt
     ;
     cx 𝕊 cmd:
         cx Say "oink"
