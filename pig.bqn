@@ -37,8 +37,7 @@ IRCParse ← { 𝕊 in:
     wds ← (×≠¨)⊸/ in ⊔˜ (⊢ -˜ ¬ ∧ +`) cln∨ spc∧ ¬∨`cln    # strips colons too!
     wds ∾⟜⟨""⟩⍟(¯1 ⊑ cln)↩    # if the colon is at the end, add an empty argument
     src ← ""
-    {𝕊: src ↩ 1 ↓ ⊑wds
-        wds ↓˜↩ 1}⍟⊢ ':' = ⊑in
+    {𝕊: src ↩ 1 ↓ ⊑wds ⋄ wds ↓˜↩ 1}⍟⊢ ':' = ⊑in
     ⟨src, ⊑ wds, 1 ↓ wds⟩    # src‿name‿args
 }
 ! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ IRCParse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
@@ -77,17 +76,17 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name #⎊({
-            #𝕨 Say "*vomits on ground*"
-            #Logln "!!! "∾𝕩
-        #}⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name ⎊({
+            𝕨 Say "*vomits on ground*"
+            Logln "!!! "∾𝕩
+        }⟜•CurrentError) name
     ; @
 }
 
 # send lines of around `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
     bytes ← 420    # maximum bytes to send
-    utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸>∧lf⊸≠) 𝕩
+    utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸>∧0⊸≠∧lf⊸≠) 𝕩
     lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
     lines (∾⟜⟨ToUTF8"etc"⟩ 10⊸↑)⍟(10<≠lines)↩
     SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ⊢)¨ lines
@@ -116,7 +115,7 @@ Pick ← •rand.Range∘≠ ⊑ ⊢
 Picks ← {𝕩 ⊏˜ 𝕨 •rand.Range ≠𝕩}
 
 DelayedDoCommand ← {
-    cx 𝕊 ·: 1 > (•MonoTime@) - lastreq?
+    cx 𝕊 ·: 0.5 > (•MonoTime@) - lastreq?
         cx Say "wait!!!"
     ;
         𝕨 DoCommand 𝕩
@@ -199,8 +198,10 @@ Time ← {𝕊: ¯1↓1⊑•SH "date"‿"-u"‿"+%H:%M:%S"}
 Main ← {𝕊:
     Logln "starting..."
     { 𝕊:
-        { Logln (Time@)∾"... "∾(@+8203)⊸≠⊸/ 𝕩
-          OnMessage IRCParse 𝕩
+        { @: @;
+          𝕩: Logln •Fmt 𝕩
+             Logln (Time@)∾"... "∾(@+8203)⊸≠⊸/ 𝕩
+               OnMessage IRCParse 𝕩
         } •GetLine @
     } •_while_ 1 @
 }
