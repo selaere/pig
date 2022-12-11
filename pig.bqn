@@ -199,8 +199,7 @@ Main ← {𝕊:
     Logln "starting..."
     { 𝕊:
         { @: @;
-          𝕩: Logln •Fmt 𝕩
-             Logln (Time@)∾"... "∾(@+8203)⊸≠⊸/ 𝕩
+          𝕩: Logln (Time@)∾"... "∾(@+8203)⊸≠⊸/ 𝕩
                OnMessage IRCParse 𝕩
         } •GetLine @
     } •_while_ 1 @
