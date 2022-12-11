@@ -30,7 +30,7 @@ SendUTF8 ← {
 }
 Send ← SendUTF8∘ToUTF8
 
-IRCParse ← { 𝕊 in: 
+IRCParse ← { 𝕊 in:
     in ↓˜↩ - ⊑⊐⟜0 ⌽ (cr⊸= ∨ lf⊸=) in    # remove line endings
     spc‿cln ← in⊸=¨ " :"
     cln ↩ ¬ ⟨1⟩⊒ 0 » spc ∧ 0«cln    # keep only when followed by spaces
@@ -76,7 +76,7 @@ OnMessage ← {
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name ⎊({
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
             𝕨 Say "*vomits on ground*"
             Logln "!!! "∾𝕩
         }⟜•CurrentError) name
@@ -86,7 +86,7 @@ OnMessage ← {
 # send lines of around `bytes` bytes, without splitting utf-8 sequence boundaries
 Saylns ← {
     bytes ← 420    # maximum bytes to send
-    utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸>∧0⊸≠∧lf⊸≠) 𝕩
+    utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸> ∧ @⊸≠ ∧ lf⊸≠) 𝕩
     lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
     lines (∾⟜⟨ToUTF8"etc"⟩ 10⊸↑)⍟(10<≠lines)↩
     SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ⊢)¨ lines
