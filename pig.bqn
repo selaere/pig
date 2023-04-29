@@ -136,6 +136,9 @@ DoCommand ← {
             cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
         } code
     ;
+    cx 𝕊 "act":
+        cx Saylns 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿"1"‿"-e"‿cx.args
+    ;
     cx 𝕊 "perform":
         cx⊸DoCommand¨ "unescape"‿"do"
     ;
