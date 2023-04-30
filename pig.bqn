@@ -136,12 +136,10 @@ DoCommand ← {
             cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
         } code
     ;
-    cx 𝕊 "act":
-        cx Saylns 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿"1"‿"-e"‿cx.args
-    ;
-    cx 𝕊 "perform":
-        cx⊸DoCommand¨ "unescape"‿"do"
-    ;
+    cx 𝕊 "perform": cx⊸DoCommand¨ "unescape"‿"do";
+    cx 𝕊 "act":     cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿"1"‿"-e"‿cx.args;
+    cx 𝕊 "rewrite": cx Saylns 1⊑•SH "vemf"‿"-r"‿"-e"‿cx.args ;
+    cx 𝕊 "react":   cx⊸DoCommand¨ "unescape"‿"do";
     cx 𝕊 "unescape":
         cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
     ;
@@ -158,17 +156,17 @@ DoCommand ← {
     ;
     cx 𝕊 "please":
         name‿args ← ParseCommand cx.args
-        {src⇐ cx.src, chan⇐ cx.chan, args⇐ args} DoCommand name
+        {src⇐cx.src, chan⇐cx.chan, args⇐args} DoCommand name
         cx Say ∾ Pick¨ ⟨
             ⟨"my pleasure"
              "forget it"
              "not at all"
              "yw"
              "np"⟩ ∾ 2/⟨"you're welcome"
-                       "no problem"
-                       "it's nothing"
-                       "it's a pleasure"
-                       "no worries"⟩
+                        "no problem"
+                        "it's nothing"
+                        "it's a pleasure"
+                        "no worries"⟩
             ⟨"!!"⟩ ∾ 2/"!"‿""
             " :D"‿" :>"‿" :]" ∾ 2/" c:"‿" :)"‿""
         ⟩
