@@ -123,9 +123,7 @@ DelayedDoCommand ← {
 }
 
 DoCommand ← {
-    cx 𝕊 "say":
-        cx Say cx.args
-    ;
+    cx 𝕊 "say": cx Say cx.args;
     cx 𝕊 "do":
         code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape cx.args
         ! ¬⊑ '•' ∊ code    # this should NOT happen
@@ -138,7 +136,7 @@ DoCommand ← {
     ;
     cx 𝕊 "perform": cx⊸DoCommand¨ "unescape"‿"do";
     cx 𝕊 "act":     cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿"1"‿"-e"‿cx.args;
-    cx 𝕊 "rewrite": cx Saylns 1⊑•SH "vemf"‿"-r"‿"-e"‿cx.args ;
+    cx 𝕊 "rewrite": cx Saylns ("```"⊸∾∾⟜"```") 1⊑•SH "vemf"‿"-r"‿"-e"‿cx.args ;
     cx 𝕊 "react":   cx⊸DoCommand¨ "unescape"‿"do";
     cx 𝕊 "unescape":
         cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
