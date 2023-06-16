@@ -1,9 +1,6 @@
 #! /usr/bin/env bqn
 
 cr‿lf ← @+13‿10
-
-fmtItalics ← @+29
-
 Log ← •term.ErrRaw
 Logln ← Log ∾⟜lf
 
@@ -31,10 +28,10 @@ SendUTF8 ← {
 Send ← SendUTF8∘ToUTF8
 
 IRCParse ← { 𝕊 in:
-    in ↓˜↩ - ⊑⊐⟜0 ⌽ (cr⊸= ∨ lf⊸=) in    # remove line endings
+    in ↓˜↩ - ⊑⊐⟜0 ⌽ ∊⟜cr‿lf in    # remove line endings
     spc‿cln ← in⊸=¨ " :"
     cln ↩ ¬ ⟨1⟩⊒ 0 » spc ∧ 0«cln    # keep only when followed by spaces
-    wds ← (×≠¨)⊸/ in ⊔˜ (⊢ -˜ ¬ ∧ +`) cln∨ spc∧ ¬∨`cln    # strips colons too!
+    wds ← (×≠¨)⊸/ in ⊔˜ (-++`×¬) cln∨ spc∧ ¬∨`cln    # strips colons too!
     wds ∾⟜⟨""⟩⍟(¯1 ⊑ cln)↩    # if the colon is at the end, add an empty argument
     src ← ""
     {𝕊: src ↩ 1 ↓ ⊑wds ⋄ wds ↓˜↩ 1}⍟⊢ ':' = ⊑in
@@ -47,20 +44,18 @@ IRCParse ← { 𝕊 in:
     IRCParse ":AutoBotRobot PRIVMSG #b :<9DrakeBot> :tada: Congratulations to"
 }
 
-alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"‿"shoat"‿"suid"‿"farrow"‿"boneen"
-
+alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"‿"suid"‿"farrow"‿"boneen"
 name ← "pig"
+lastreq ← 0
 
 ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
 
-lastreq ← 0
-
 OnMessage ← {
+    # this is not actually an irc command. it is sent by the shell file to tell this file to send
+    # the login commands and stuff
     𝕊 ·‿"STARTPLZ"‿·:
-        # this is not actually an irc command. it is sent by the shell file to tell this file to 
-        # send the login commands and shit
         Send "NICK "∾name
-        Send "USER "∾name∾" 0 * :"∾fmtItalics∾"Sus domesticus"
+        Send "USER "∾name∾" 0 * :"∾(@+29)∾"Sus domesticus"
     ;
     𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
         Send "NICK " ∾ name ↩ Pick alternatives
@@ -71,15 +66,15 @@ OnMessage ← {
         Send "PRIVMSG #b 🐖"
     ;
     𝕊 ·‿"PING"‿args:
-        Send {0=≠args? "PONG" ; "PONG :"∾¯1⊑args}
+        Send args (⊢∾" :"∾¯1⊑⊣)⍟(0≠≠∘⊣) "PONG"
     ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
         name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
-            𝕨 Say "*vomits on ground*"
-            Logln "!!! "∾𝕩
-        }⟜•CurrentError) name
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name#⎊({
+            #𝕨 Say "*vomits on ground*"
+            #Logln "!!! "∾𝕩
+        #}⟜•CurrentError) name
     ; @
 }
 
@@ -94,11 +89,11 @@ Saylns ← {
 
 ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!' ⊸ ↑ 𝕩.src; 𝕩.chan}
 
-Say ← Send  ⊢ ∾˜ ResponsePrefix∘⊣
+Say ← Send ResponsePrefix⊸∾
 
 susBQN ← •ReBQN {repl⇐"loose",scope⇐"none"}
 # provide some builtins
-SusBQN ∾ (⊢ ∾ "←•" ∾ ∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Repr"‿"Type"‿"Glyph"‿"Decompose"‿"MakeRand"
+SusBQN ∾ (⊢∾"←•"∾∾⟜lf)¨ "rand"‿"math"‿"Fmt"‿"Repr"‿"Type"‿"Glyph"‿"Decompose"‿"MakeRand"‿"ParseFloat"
 
 keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvbm,./ZXVBM<>? '\"""
 keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
@@ -106,9 +101,9 @@ keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽
 
 # resolves BQN escapes as in https://mlochbaum.github.io/BQN/keymap.html
 Unescape ← {
-    code ← 𝕩 (⊣ ↓ -⊸↓)˜ (⊑∘⊐⟜0 ⌊ ⊑∘⊐⟜0∘⌽) '`' = 𝕩   # removes as many ticks it can
+    code ← 𝕩 (⊣ ↓ -⊸↓)˜ ⌊○(⊑⊐⟜0)⟜⌽ '`' = 𝕩   # removes as many ticks it can
     bsls ← ¬⊸∨` '\' ≠ code    # in \\ only the first backslash should be escaped
-    bsls / (keyto ⊏˜ keyfm ⊐ ⊢)⌾((»¬bsls)⊸/) code
+    bsls / (⊏⟜keyto keyfm⊸⊐)⌾((»¬bsls)⊸/) code
 }
 
 Pick ← •rand.Range∘≠ ⊑ ⊢
@@ -126,20 +121,19 @@ DoCommand ← {
     cx 𝕊 "say": cx Say cx.args;
     cx 𝕊 "do":
         code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape cx.args
-        ! ¬⊑ '•' ∊ code    # this should NOT happen
-        { ⊑"#" ∊ 𝕩? 
-            cx Say "nah"
-            "emetion triggered" ! 0
-        ;
-            cx Saylns {1 = =𝕩? ∧´ 2 = •Type¨ 𝕩? 𝕩; •Fmt 𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
+        ! ¬⊑'•'∊code    # this should NOT happen  # glad to know past me knew what an assertion was
+        { ⊑"#" ∊ 𝕩? cx Say "nah" ⋄ "emetion triggered" ! 0 ;
+            cx Saylns {1==𝕩? ∧´2=•Type¨𝕩? 𝕩; •Fmt𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
         } code
     ;
     cx 𝕊 "perform": cx⊸DoCommand¨ "unescape"‿"do";
-    cx 𝕊 "act":     cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿"1"‿"-e"‿cx.args;
     cx 𝕊 "rewrite": cx Saylns ("```"⊸∾∾⟜"```") 1⊑•SH "vemf"‿"-r"‿"-e"‿cx.args ;
-    cx 𝕊 "react":   cx⊸DoCommand¨ "rewrite"‿"act";
+    cx 𝕊 cmd: "act"≡3↑cmd ?
+        cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿("1"⍟(¬≠)3↓cmd)‿"-e"‿cx.args
+    ;
+    cx 𝕊 cmd: "react"≡5↑cmd ? cx⊸DoCommand¨"rewrite"⋈2↓cmd;
     cx 𝕊 "unescape":
-        cx Saylns ("```"⊸∾∾⟜"```") Unescape cx.args
+        cx Saylns "```"⊸∾∾⟜"```" Unescape cx.args
     ;
     cx 𝕊 "join": ¬ ∨´ "," ∊ cx.args? '#' = ⊑ cx.args?
         cx Say "omw"
@@ -189,8 +183,7 @@ DoCommand ← {
               ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
     ;
-    cx 𝕊 cmd:
-        cx Say "oink"
+    cx 𝕊 cmd: cx Say "oink"
 }
 Time ← {𝕊: ¯1↓1⊑•SH "date"‿"-u"‿"+%H:%M:%S"}
 

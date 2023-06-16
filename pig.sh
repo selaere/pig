@@ -12,7 +12,7 @@ logfile=$(date +log/%F.pig.log)
     # change "irc.osmarks.net" to the server address
     # "-w 60" in my netcat version tells it to wait before writing, you might need something else
     # (see <https://superuser.com/q/261900>)
-    netcat -w 60 irc.osmarks.net 6667 
+    netcat -w 60 irc.osmarks.net 6667
 done ) < /tmp/pig/in > /tmp/pig/out &
 # printf ":pig.sh STARTPLZ\r\n" > /tmp/pig/out &
 $bqn pig.bqn run > /tmp/pig/in < /tmp/pig/out 2> >(tee -a $logfile >&2)
