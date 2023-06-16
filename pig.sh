@@ -10,7 +10,7 @@ logfile=$(date +log/%F.pig.log)
 ( while true; do
     printf ":pig.sh STARTPLZ\r\n" &
     # change "irc.osmarks.net" to the server address
-    # "-w 10" in my netcat version tells it to wait before writing, you might need something else
+    # "-w 60" in my netcat version tells it to wait before writing, you might need something else
     # (see <https://superuser.com/q/261900>)
     netcat -w 60 irc.osmarks.net 6667 
 done ) < /tmp/pig/in > /tmp/pig/out &
