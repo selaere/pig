@@ -59,7 +59,7 @@ OnMessage ← {
     𝕊 ·‿"PING"‿args: Send args (⊢∾" :"∾¯1⊑⊣)⍟(0≠≠∘⊣) "PONG" ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
-        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1+↓) msg ↓˜ 1+ (≠name) + ⊑/pigs
+        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1⊸+⊸↓) msg ↓˜ 1+ (≠name) + ⊑/pigs
         {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
             𝕨 Say "*vomits on ground*" ⋄ Logln "!!! "∾𝕩
         }⟜•CurrentError) name
@@ -125,7 +125,7 @@ DoCommand ← {
     cx 𝕊 "leave": cx Say "omw" ⋄ Send "PART "∾cx.chan ;
     cx 𝕊 "emete": "emetion triggered" ! 0 ;
     cx 𝕊 "please":
-        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1+↓) cx.args
+        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1⊸+⊸↓) cx.args
         {src⇐cx.src, chan⇐cx.chan, args⇐args} DoCommand name
         cx Say ∾ Pick¨ ⟨
             ⟨"my pleasure"
@@ -160,6 +160,9 @@ DoCommand ← {
               ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
     ;
+    cx 𝕊 help: cx Say "i can "∾Pick ⟨
+        "say","do","perform","rewrite","react","unescape","join","leave","emete","please"
+        "aysay","bee","help","oink"⟩
     cx 𝕊 cmd: cx Say "oink"
 }
 Time ← {𝕊: ¯1↓1⊑•SH "date"‿"-u"‿"+%H:%M:%S"}
