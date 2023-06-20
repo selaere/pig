@@ -162,7 +162,7 @@ DoCommand ← {
     ;
     cx 𝕊 help: cx Say "i can "∾Pick ⟨
         "say","do","perform","rewrite","react","unescape","join","leave","emete","please"
-        "aysay","bee","help","oink"⟩
+        "aysay","bee","help","oink"⟩ ;
     cx 𝕊 cmd: cx Say "oink"
 }
 Time ← {𝕊: ¯1↓1⊑•SH "date"‿"-u"‿"+%H:%M:%S"}
