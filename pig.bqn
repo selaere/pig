@@ -28,13 +28,13 @@ SendUTF8 ← {
 Send ← SendUTF8∘ToUTF8
 
 IRCParse ← { 𝕊 in:
-    in ↓˜↩ - ⊑⊐⟜0 ⌽ ∊⟜cr‿lf in    # remove line endings
+    in ← ¬∘(∧`⌾⌽∊⟜cr‿lf)⊸/ in    # remove line endings
     spc‿cln ← in⊸=¨ " :"
-    cln ↩ ¬ ⟨1⟩⊒ 0 » spc ∧ 0«cln    # keep only when followed by spaces
-    wds ← (×≠¨)⊸/ in ⊔˜ (-++`×¬) cln∨ spc∧ ¬∨`cln    # strips colons too!
-    wds ∾⟜⟨""⟩⍟(¯1 ⊑ cln)↩    # if the colon is at the end, add an empty argument
+    cln ↩ »⊸<∨` cln ∧»spc    # keep only when followed by spaces
+    wds ← in ⊔˜ (-+¬×·+`»⊸<) cln∨ spc∧ ¬∨`cln    # strips colons too!
+    wds ∾⟜⟨""⟩⍟(¯1⊑cln)↩    # if the colon is at the end, add an empty argument
     src ← ""
-    {𝕊: src ↩ 1 ↓ ⊑wds ⋄ wds ↓˜↩ 1}⍟⊢ ':' = ⊑in
+    {𝕊: src ↩ 1↓⊑wds ⋄ wds↓˜↩1}⍟⊢ ':' = ⊑in
     ⟨src, ⊑ wds, 1 ↓ wds⟩    # src‿name‿args
 }
 ! "pig"‿"PRIVMSG"‿("#a"‿":  bee sus") ≡ IRCParse ":pig PRIVMSG  #a  ::  bee sus"∾cr‿lf
@@ -48,33 +48,21 @@ alternatives ← "piglet"‿"hog"‿"swine"‿"pork"‿"shoat"‿"boar"‿"sow"�
 name ← "pig"
 lastreq ← 0
 
-ParseCommand ← ⊑∘⊐⟜' ' ⊸ (↑ ⋈ 1⊸+⊸↓)
-
 OnMessage ← {
     # this is not actually an irc command. it is sent by the shell file to tell this file to send
     # the login commands and stuff
     𝕊 ·‿"STARTPLZ"‿·:
-        Send "NICK "∾name
-        Send "USER "∾name∾" 0 * :"∾(@+29)∾"Sus domesticus"
+        Send¨ ("NICK "∾name)‿("USER "∾name∾" 0 * :"∾(@+29)∾"Sus domesticus")
     ;
-    𝕊 ·‿"433"‿·:    # ERR_NICKNAMEINUSE
-        Send "NICK " ∾ name ↩ Pick alternatives
-    ;
-    𝕊 ·‿"001"‿·:    # RPL_WELCOME
-        Send "MODE "∾name∾" +x"
-        Send "JOIN #b"
-        Send "PRIVMSG #b 🐖"
-    ;
-    𝕊 ·‿"PING"‿args:
-        Send args (⊢∾" :"∾¯1⊑⊣)⍟(0≠≠∘⊣) "PONG"
-    ;
+    𝕊 ·‿"433"‿·: Send "NICK " ∾ name ↩ Pick alternatives ; # ERR_NICKNAMEINUSE
+    𝕊 ·‿"001"‿·: Send¨ ("MODE "∾name∾" +x")‿"JOIN #b"‿"PRIVMSG #b 🐖" ; # RPL_WELCOME
+    𝕊 ·‿"PING"‿args: Send args (⊢∾" :"∾¯1⊑⊣)⍟(0≠≠∘⊣) "PONG" ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
     ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
-        name‿args ← ParseCommand msg ↓˜ (1+≠name) + ⊑/pigs
-        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand name#⎊({
-            #𝕨 Say "*vomits on ground*"
-            #Logln "!!! "∾𝕩
-        #}⟜•CurrentError) name
+        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1+↓) msg ↓˜ 1+ (≠name) + ⊑/pigs
+        {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
+            𝕨 Say "*vomits on ground*" ⋄ Logln "!!! "∾𝕩
+        }⟜•CurrentError) name
     ; @
 }
 
@@ -87,7 +75,7 @@ Saylns ← {
     SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ⊢)¨ lines
 }
 
-ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!' ⊸ ↑ 𝕩.src; 𝕩.chan}
+ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!'⊸↑ 𝕩.src; 𝕩.chan}
 
 Say ← Send ResponsePrefix⊸∾
 
@@ -106,15 +94,11 @@ Unescape ← {
     bsls / (⊏⟜keyto keyfm⊸⊐)⌾((»¬bsls)⊸/) code
 }
 
-Pick ← •rand.Range∘≠ ⊑ ⊢
-Picks ← {𝕩 ⊏˜ 𝕨 •rand.Range ≠𝕩}
+Pick ← (•rand.Range∘≠ ⊑ ⊢)⊘(•rand.Range⟜≠ ⊏ ⊢)
 
 DelayedDoCommand ← {
-    cx 𝕊 ·: 0.5 > (•MonoTime@) - lastreq?
-        cx Say "wait!!!"
-    ;
-        𝕨 DoCommand 𝕩
-        lastreq ↩ •MonoTime@
+    cx 𝕊 ·: 0.5 > (•MonoTime@) - lastreq? cx Say "wait!!!";
+    𝕨 DoCommand 𝕩 ⋄ lastreq ↩ •MonoTime@
 }
 
 DoCommand ← {
@@ -131,21 +115,15 @@ DoCommand ← {
     cx 𝕊 cmd: "act"≡3↑cmd ?
         cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿("1"⍟(¬≠)3↓cmd)‿"-e"‿cx.args
     ;
-    cx 𝕊 cmd: "react"≡5↑cmd ? cx⊸DoCommand¨"rewrite"⋈2↓cmd;
+    cx 𝕊 cmd: "react"≡5↑cmd ? cx⊸DoCommand¨"rewrite"⋈2↓cmd ;
     cx 𝕊 "unescape":
         cx Saylns "```"⊸∾∾⟜"```" Unescape cx.args
     ;
     cx 𝕊 "join": ¬ ∨´ "," ∊ cx.args? '#' = ⊑ cx.args?
-        cx Say "omw"
-        Send "JOIN "∾cx.args
+        cx Say "omw" ⋄ Send "JOIN "∾cx.args
     ;
-    cx 𝕊 "leave":
-        cx Say "omw"
-        Send "PART "∾cx.chan
-    ;
-    cx 𝕊 "emete":
-        "emetion triggered" ! 0
-    ;
+    cx 𝕊 "leave": cx Say "omw" ⋄ Send "PART "∾cx.chan ;
+    cx 𝕊 "emete": "emetion triggered" ! 0 ;
     cx 𝕊 "please":
         name‿args ← ParseCommand cx.args
         {src⇐cx.src, chan⇐cx.chan, args⇐args} DoCommand name
@@ -165,21 +143,20 @@ DoCommand ← {
     ;
     cx 𝕊 "aysay":
         ltrs ← ∾ "Aa"⊸+¨↕26
-        csnts ← "bcdfghjklmnpqrstvwxz"
         cx Saylns ∾ {
             0 = ≠𝕩? "";
             ¬⊑ 𝕩 ∊ ltrs? 𝕩;
             wd ← +⟜(32×'Z'⊸≥)¨ 𝕩
-            t ← ⊑⊐⟜0 (0∾"qu"⍷wd)∨ 1⌾⊑⍟('y'=⊑wd) wd ∊ csnts
-            (t↓wd) ∾ (t↑wd) ∾ ("w"/˜t=0) ∾ "ay"
-        }¨ cx.args ⊔˜ +` (⊢ ∨ 1»⊢) ¬ ltrs ∊˜ cx.args
+            t ← ⊑⊐⟜0 (0∾"qu"⍷wd)∨ 1⌾⊑⍟('y'=⊑wd) wd ∊ "bcdfghjklmnpqrstvwxz"
+            (t↓wd)∾(t↑wd)∾("w"/˜t=0)∾"ay"
+        }¨ cx.args ⊔˜ +` ∨⟜» ¬ ltrs ∊˜ cx.args
     ;
     cx 𝕊 "bee":
         Num ← {𝕊: ⌊ 1024 ÷ 10+•rand.Range 256}
-        cx Saylns ∾ {𝕏@}¨ (Num @) Picks ∾ ⟨
+        cx Saylns ∾ {𝕏@}¨ (Num @) Pick ∾ ⟨
             3/⟨{𝕊: "bee"∾(Num⊸/ "e")∾(Pick ""‿""‿"s")∾(Num⊸/ "!")∾Pick""‿" "‿" "}⟩
             3/⟨{𝕊: "bzz"∾(Num⊸/ "z")∾(Pick ""‿"t")∾(Pick ""‿"!")∾Pick""‿" "‿" "}⟩
-              ⟨{𝕊: "c:"∾Pick""‿" "}⟩
+              ⟨{𝕊: "c:"  ∾Pick""‿" "}⟩
               ⟨{𝕊: "apio"∾Pick""‿" "}⟩
         ⟩
     ;
