@@ -28,7 +28,7 @@ SendUTF8 ← {
 Send ← SendUTF8∘ToUTF8
 
 IRCParse ← { 𝕊 in:
-    in ← ¬∘(∧`⌾⌽∊⟜cr‿lf)⊸/ in    # remove line endings
+    in ¬∘(∧`⌾⌽∊⟜cr‿lf)⊸/↩    # remove line endings
     spc‿cln ← in⊸=¨ " :"
     cln ↩ »⊸<∨` cln ∧»spc    # keep only when followed by spaces
     wds ← in ⊔˜ (-+¬×·+`»⊸<) cln∨ spc∧ ¬∨`cln    # strips colons too!
