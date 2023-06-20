@@ -125,7 +125,7 @@ DoCommand ← {
     cx 𝕊 "leave": cx Say "omw" ⋄ Send "PART "∾cx.chan ;
     cx 𝕊 "emete": "emetion triggered" ! 0 ;
     cx 𝕊 "please":
-        name‿args ← ParseCommand cx.args
+        name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1+↓) cx.args
         {src⇐cx.src, chan⇐cx.chan, args⇐args} DoCommand name
         cx Say ∾ Pick¨ ⟨
             ⟨"my pleasure"
