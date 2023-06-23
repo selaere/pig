@@ -87,12 +87,9 @@ keyfm ← "`123456890-=~!@#$%^&*()_+qwertuiop[]QWERTIOP{}asdfghjkl;ASFGHKL:zxcvb
 keyto ← "˜˘¨⁼⌜´˝∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽𝕨∊↑∧⊔⊏⊐π←→↙𝕎⍷𝕣⍋⊑⊒⍳⊣⊢⍉𝕤↕𝕗𝕘⊸∘○⟜⋄↖𝕊𝔽𝔾«⌾»·⥊𝕩↓∨⌊≡∾≍≠⋈𝕏⍒⌈≢≤≥⇐‿↩\˙🐖"
 # 🐖 will be used when no escape is found
 
-# resolves BQN escapes as in https://mlochbaum.github.io/BQN/keymap.html
-Unescape ← {
-    code ← 𝕩 (⊣ ↓ -⊸↓)˜ ⌊○(⊑⊐⟜0)⟜⌽ '`' = 𝕩   # removes as many ticks it can
-    bsls ← ¬⊸∨` '\' ≠ code    # in \\ only the first backslash should be escaped
-    bsls / (⊏⟜keyto keyfm⊸⊐)⌾((»¬bsls)⊸/) code
-}
+Detick ← (⌊○(⊑⊐⟜0)⟜⌽ '`'⊸=)⊸(⊣↓-⊸↓)    # removes as many backticks as possible
+
+Unescape ← (<`'\'⊸=)⊸{(¬𝕨)/(⊏⟜keyto keyfm⊸⊐)⌾((»𝕨)⊸/)𝕩}    # resolves BQN escapes
 
 Pick ← (•rand.Range∘≠ ⊑ ⊢)⊘(•rand.Range⟜≠ ⊏ ⊢)
 
@@ -104,20 +101,20 @@ DelayedDoCommand ← {
 DoCommand ← {
     cx 𝕊 "say": cx Say cx.args;
     cx 𝕊 "do":
-        code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape cx.args
+        code ← '#'⍟('⍝'⊸=)¨ ('•'⊸≠ / ⊢) Unescape Detick cx.args
         ! ¬⊑'•'∊code    # this should NOT happen  # glad to know past me knew what an assertion was
         { ⊑"#" ∊ 𝕩? cx Say "nah" ⋄ "emetion triggered" ! 0 ;
             cx Saylns {1==𝕩? ∧´2=•Type¨𝕩? 𝕩; •Fmt𝕩}∘SusBQN⎊("Error: "∾•CurrentError) 𝕩
         } code
     ;
     cx 𝕊 "perform": cx⊸DoCommand¨ "unescape"‿"do";
-    cx 𝕊 "rewrite": cx Saylns ("```"⊸∾∾⟜"```") 1⊑•SH "vemf"‿"-r"‿"-e"‿cx.args ;
+    cx 𝕊 "rewrite": cx Saylns "```"⊸∾∾⟜"```" 1⊑•SH "vemf"‿"-r"‿"-e"‿(Detick cx.args) ;
     cx 𝕊 cmd: "act"≡3↑cmd ?
-        cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿("1"⍟(¬≠)3↓cmd)‿"-e"‿cx.args
+        cx Saylns (-lf=⊢´)⊸↓ 1⊑•SH "timeout"‿"10s"‿"vemf"‿"-f"‿("1"⍟(¬≠)3↓cmd)‿"-e"‿(Detick cx.args)
     ;
     cx 𝕊 cmd: "react"≡5↑cmd ? cx⊸DoCommand¨"rewrite"⋈2↓cmd ;
     cx 𝕊 "unescape":
-        cx Saylns "```"⊸∾∾⟜"```" Unescape cx.args
+        cx Saylns "```"⊸∾∾⟜"```" Unescape Detick cx.args
     ;
     cx 𝕊 "join": ¬ ∨´ "," ∊ cx.args? '#' = ⊑ cx.args?
         cx Say "omw" ⋄ Send "JOIN "∾cx.args
