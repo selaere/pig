@@ -49,11 +49,11 @@ OnMessage ← {
     𝕊 ·‿"STARTPLZ"‿·:
         Send¨ ("NICK "∾name)‿("USER "∾name∾" 0 * :"∾(@+29)∾"Sus domesticus")
     ;
-    𝕊 ·‿"433"‿·: Send  "NICK " ∾ name ↩ Pick alternatives ;              # ERR_NICKNAMEINUSE
+    𝕊 ·‿"433"‿·: Send   "NICK "∾name↩Pick alternatives ;                # ERR_NICKNAMEINUSE
     𝕊 ·‿"001"‿·: Send¨ ("MODE "∾name∾" +x")‿"JOIN #b"‿"PRIVMSG #b 🐖" ; # RPL_WELCOME
     𝕊 ·‿"PING"‿args: Send args (⊢∾" :"∾¯1⊑⊣)⍟(0≠≠∘⊣) "PONG" ;
     𝕊 src‿"PRIVMSG"‿(chan‿msg):
-    ∨´ pigs ← (name∾" ") ⍷ " " ∾˜ msg?
+    ∨´ pigs ← name⍷○(∾⟜' ')msg?
         name‿args ← ⊑∘⊐⟜' '⊸(↑⋈1⊸+⊸↓) msg ↓˜ 1+ (≠name) + ⊑/pigs
         {src⇐src,chan⇐chan,args⇐args} DelayedDoCommand⎊({
             𝕨 Say "*vomits on ground*" ⋄ Logln "!!! "∾𝕩
@@ -65,12 +65,12 @@ OnMessage ← {
 Saylns ← {
     bytes ← 420    # maximum bytes to send
     utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸> ∧ lf⊸≠) 𝕩
-    lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 {⟨𝕨+≠𝕩, ⌈⌾(÷⟜bytes) 𝕨⟩ ⊑˜ 10=⊑𝕩}` utf
+    lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 ⟨(≠𝕩)⊸+,⌈⌾(÷⟜bytes)⟩◶(10=⊑)` utf
     lines (∾⟜⟨ToUTF8"etc"⟩ 10⊸↑)⍟(10<≠lines)↩
-    SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨) ∾ ⊢)¨ lines
+    SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨)∾⊢)¨ lines
 }
 
-ResponsePrefix ← " :"∾˜"PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!'⊸↑ 𝕩.src; 𝕩.chan}
+ResponsePrefix ← "PRIVMSG "∾{𝕩.chan≡"pig"? ⊑∘⊐⟜'!'⊸↑ 𝕩.src; 𝕩.chan}∾" :"˙
 
 Say ← Send ResponsePrefix⊸∾
 
