@@ -65,7 +65,7 @@ OnMessage ← {
 Saylns ← {
     bytes ← 420    # maximum bytes to send
     utf ← CpToUTF8∘-⟜@¨ '␡'⍟((@+127)⊸=)¨ +⟜(('␀'-@)×' '⊸> ∧ lf⊸≠) 𝕩
-    lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 ⟨(≠𝕩)⊸+,⌈⌾(÷⟜bytes)⟩◶(10=⊑)` utf
+    lines ← ∾¨ utf ⊔˜ bytes ⌊∘÷˜ 0 (10=⊑∘⊢)◶⟨+⟜≠,⌈⌾(÷⟜bytes)⊣⟩` utf
     lines (∾⟜⟨ToUTF8"etc"⟩ 10⊸↑)⍟(10<≠lines)↩
     SendUTF8∘(10⊸≠⊸/ (ToUTF8 ResponsePrefix 𝕨)∾⊢)¨ lines
 }
